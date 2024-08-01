@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Message to Telegram Bot</title>
+</head>
+<body>
+    <h1>Send Message to Telegram Bot</h1>
+    <form id="telegramForm">
+        <label for="message">Message:</label><br>
+        <input type="text" id="message" name="message" required><br><br>
+        <input type="submit" value="Send">
+    </form>
+
+    <script>
+        document.getElementById('telegramForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = document.getElementById('message').value;
+            const botToken = '7347658420:AAGpTMvd4zZfgngZAQT_2rkOCcDPXQkfASs';
+            const chatId = '5634946920';
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            const data = {
+                chat_id: chatId,
+                text: message
+            };
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert('Message sent successfully!');
+                } else {
+                    alert('Error sending message.');
+                }
+            })
+            .catch(error => {
+                alert('Error sending message.');
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
