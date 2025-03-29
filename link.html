@@ -15,6 +15,7 @@
         </form>
         <div id="result" style="display: none;">
             <p>Shortened URL: <a id="short_url" href="" target="_blank"></a></p>
+            <button id="copy-button">Copy</button>
         </div>
     </div>
     <script>
@@ -37,8 +38,9 @@
                     });
                 })
                 .then(() => {
-                    document.getElementById('short_url').href = window.location.href + shortUrl;
-                    document.getElementById('short_url').textContent = window.location.href + shortUrl;
+                    const shortUrlElement = document.getElementById('short_url');
+                    shortUrlElement.href = window.location.href + shortUrl;
+                    shortUrlElement.textContent = window.location.href + shortUrl;
                     document.getElementById('result').style.display = 'block';
                 });
         });
@@ -51,6 +53,17 @@
             }
             return shortUrl;
         }
+
+        document.getElementById('copy-button').addEventListener('click', function() {
+            const shortUrlElement = document.getElementById('short_url');
+            const tempInput = document.createElement('input');
+            tempInput.value = shortUrlElement.href;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Shortened URL copied to clipboard!');
+        });
     </script>
     <style>
         body {
@@ -90,6 +103,10 @@
 
         button:hover {
             background: #218838;
+        }
+
+        #copy-button {
+            margin-top: 10px;
         }
     </style>
 </body>
