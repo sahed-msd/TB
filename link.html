@@ -68,6 +68,7 @@
         const bodyParser = require('body-parser');
         const { nanoid } = require('nanoid');
         const mongoose = require('mongoose');
+        const path = require('path');
 
         // Connect to MongoDB
         mongoose.connect('mongodb://localhost:27017/linkshortener', { useNewUrlParser: true, useUnifiedTopology: true });
@@ -83,7 +84,7 @@
         app.use(bodyParser.json());
 
         // Serve static files
-        app.use(express.static('public'));
+        app.use(express.static(path.join(__dirname, 'public')));
 
         // Endpoint to shorten URL
         app.post('/shorten', async (req, res) => {
