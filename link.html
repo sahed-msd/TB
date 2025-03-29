@@ -17,6 +17,13 @@
         }
         button {
             padding: 10px 20px;
+            margin: 5px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        #copyButton {
+            display: none;
         }
     </style>
 </head>
@@ -27,6 +34,7 @@
         <button type="submit">Shorten</button>
     </form>
     <div id="result"></div>
+    <button id="copyButton" onclick="copyToClipboard()">Copy Link</button>
     <script>
         document.getElementById('shortenForm').addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -39,8 +47,20 @@
                 body: JSON.stringify({ longUrl })
             });
             const result = await response.json();
-            document.getElementById('result').innerHTML = `<p>Short URL: <a href="${result.shortUrl}" target="_blank">${result.shortUrl}</a></p>`;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<p>Short URL: <a href="${result.shortUrl}" target="_blank">${result.shortUrl}</a></p>`;
+            document.getElementById('copyButton').style.display = 'inline-block';
+            document.getElementById('copyButton').setAttribute('data-url', result.shortUrl);
         });
+
+        function copyToClipboard() {
+            const shortUrl = document.getElementById('copyButton').getAttribute('data-url');
+            navigator.clipboard.writeText(shortUrl).then(() => {
+                alert('Link copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy the link: ', err);
+            });
+        }
     </script>
 </body>
 </html>
