@@ -2,113 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Shortener</title>
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <form id="url-form">
+            <label for="original_url">Enter URL:</label>
+            <input type="text" id="original_url" name="original_url" required>
+            <button type="submit">Shorten</button>
+        </form>
+        <div id="result" style="display: none;">
+            <p>Shortened URL: <a id="short_url" href="" target="_blank"></a></p>
+        </div>
+    </div>
+    <script>
+        document.getElementById('url-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const originalUrl = document.getElementById('original_url').value;
+            const shortUrl = generateShortUrl();
+
+            fetch('urls.json')
+                .then(response => response.json())
+                .then(urls => {
+                    urls[shortUrl] = originalUrl;
+                    return fetch('urls.json', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(urls)
+                    });
+                })
+                .then(() => {
+                    document.getElementById('short_url').href = window.location.href + shortUrl;
+                    document.getElementById('short_url').textContent = window.location.href + shortUrl;
+                    document.getElementById('result').style.display = 'block';
+                });
+        });
+
+        function generateShortUrl() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let shortUrl = '';
+            for (let i = 0; i < 6; i++) {
+                shortUrl += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return shortUrl;
+        }
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
         }
-        input[type="url"] {
-            width: 300px;
+
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        input[type="text"] {
+            width: 80%;
             padding: 10px;
             margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
+
         button {
             padding: 10px 20px;
-            margin: 5px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        #result {
-            margin-top: 20px;
-        }
-        #copyButton {
-            display: none;
+
+        button:hover {
+            background: #218838;
         }
     </style>
-</head>
-<body>
-    <h1>Link Shortener</h1>
-    <form id="shortenForm">
-        <input type="url" id="longUrl" placeholder="Enter your URL" required>
-        <button type="submit">Shorten</button>
-    </form>
-    <div id="result"></div>
-    <button id="copyButton" onclick="copyToClipboard()">Copy Link</button>
-    <script>
-        document.getElementById('shortenForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const longUrl = document.getElementById('longUrl').value;
-            const response = await fetch('/shorten', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ longUrl })
-            });
-            const result = await response.json();
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `<p>Short URL: <a href="${result.shortUrl}" target="_blank">${result.shortUrl}</a></p>`;
-            document.getElementById('copyButton').style.display = 'inline-block';
-            document.getElementById('copyButton').setAttribute('data-url', result.shortUrl);
-        });
-
-        function copyToClipboard() {
-            const shortUrl = document.getElementById('copyButton').getAttribute('data-url');
-            navigator.clipboard.writeText(shortUrl).then(() => {
-                alert('Link copied to clipboard');
-            }).catch(err => {
-                console.error('Failed to copy the link: ', err);
-            });
-        }
-    </script>
-    <script>
-        const express = require('express');
-        const app = express();
-        const bodyParser = require('body-parser');
-        const { nanoid } = require('nanoid');
-        const mongoose = require('mongoose');
-        const path = require('path');
-
-        // Connect to MongoDB
-        mongoose.connect('mongodb://localhost:27017/linkshortener', { useNewUrlParser: true, useUnifiedTopology: true });
-
-        // Define URL schema
-        const urlSchema = new mongoose.Schema({
-            longUrl: String,
-            shortUrl: String
-        });
-
-        const URL = mongoose.model('URL', urlSchema);
-
-        app.use(bodyParser.json());
-
-        // Serve static files
-        app.use(express.static(path.join(__dirname, 'public')));
-
-        // Endpoint to shorten URL
-        app.post('/shorten', async (req, res) => {
-            const longUrl = req.body.longUrl;
-            const shortUrl = nanoid(6);
-            const url = new URL({ longUrl, shortUrl: `http://localhost:3000/${shortUrl}` });
-            await url.save();
-            res.json({ shortUrl: url.shortUrl });
-        });
-
-        // Endpoint to redirect to long URL
-        app.get('/:shortUrl', async (req, res) => {
-            const shortUrl = req.params.shortUrl;
-            const url = await URL.findOne({ shortUrl: `http://localhost:3000/${shortUrl}` });
-            if (url) {
-                res.redirect(url.longUrl);
-            } else {
-                res.status(404).send('URL not found');
-            }
-        });
-
-        app.listen(3000, () => {
-            console.log('Server is running on http://localhost:3000');
-        });
-    </script>
 </body>
 </html>
